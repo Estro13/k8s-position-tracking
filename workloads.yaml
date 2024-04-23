@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: queue
+          image: richardchesterwood/k8s-fleetman-queue:release1-arm64
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-simulator
+  labels:
+    app: position-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: position-simulator
+  template:
+    metadata:
+      labels:
+        app: position-simulator
+    spec:
+      containers:
+        - name: position-simulator
+          image: richardchesterwood/k8s-fleetman-position-simulator:release1-arm64
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: production-microservice
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-tracker
+  labels:
+    app: position-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: position-tracker
+  template:
+    metadata:
+      labels:
+        app: position-tracker
+    spec:
+      containers:
+        - name: position-tracker
+          image: richardchesterwood/k8s-fleetman-position-tracker:release1-arm64
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: production-microservice
+
+

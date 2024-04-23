@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  #  latency which k8s wait to redirect traffic on new pods after our new pods respond on request
+  minReadySeconds: 30
+  # modify replicas according to your case
+  replicas: 2
+  selector:
+    matchLabels:
+      #replica set would be manage only pods which have this label(pod can have more another labels)
+      app: webapp
+  # template for pods
+  template:
+    metadata:
+      labels:
+        app: webapp
+        release: "0"
+    spec:
+      containers:
+        - name: container1
+          image: richardchesterwood/k8s-fleetman-webapp-angular:release0-arm64
+
+
+---
+
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: queue
+#  labels:
+#    app: queue
+#spec:
+#  # modify replicas according to your case
+#  replicas: 2
+#  selector:
+#    matchLabels:
+#      #replica set would be manage only pods which have this label(pod can have more another labels)
+#      app: queue
+#  # template for pods
+#  template:
+#    metadata:
+#      labels:
+#        app: queue
+#        release: "1"
+#    spec:
+#      containers:
+#        - name: container1
+#          image: richardchesterwood/k8s-fleetman-queue:release1-arm64
+#
+

@@ -7,6 +7,7 @@ spec:
   selector:
     matchLabels:
       app: queue
+# template for the pods
   template:
     metadata:
       labels:
@@ -30,6 +31,7 @@ spec:
   selector:
     matchLabels:
       app: position-simulator
+  # template for the pods
   template:
     metadata:
       labels:
@@ -56,6 +58,7 @@ spec:
   selector:
     matchLabels:
       app: position-tracker
+  # template for the pods
   template:
     metadata:
       labels:
@@ -67,5 +70,60 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: production-microservice
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  # template for the pods
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: richardchesterwood/k8s-fleetman-api-gateway:release1-arm64
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: production-microservice
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  # template for the pods
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: webapp
+          image: richardchesterwood/k8s-fleetman-webapp-angular:release1-arm64
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: production-microservice
+
 
 

@@ -64,3 +64,4 @@ spec:
       port: 80
       nodePort: 30011
 # kubectl port-forward svc/fleetman-webapp 30011:80
+

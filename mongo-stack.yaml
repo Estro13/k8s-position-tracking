@@ -18,6 +18,14 @@ spec:
       containers:
         - name: mongodb
           image: arm64v8/mongo:3.6.22
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+#          pointer to the configur of how we want the mount to be implemented
+          persistentVolumeClaim:
+            claimName: mongo-pvc
 
 ---
 

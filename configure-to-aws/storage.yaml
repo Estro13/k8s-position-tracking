@@ -1,0 +1,41 @@
+#First we need configure some settings
+#eksctl utils associate-iam-oidc-provider --region=eu-central-1 --cluster=fleetman --approve
+#eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster fleetman --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve  --role-only  --role-name AmazonEKS_EBS_CSI_DriverRole
+# If recate new cluster in the same region just last third commmand
+#eksctl create addon --name aws-ebs-csi-driver --cluster fleetman --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force
+
+# What do we want?
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+#  on this name we reference in container
+  name: mongo-pvc
+spec:
+#  this key:value MUST math with PersistentVolume
+  storageClassName: cloud-ssd
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+#      This value should be less than or equal to the capacity of the PV it is bound to.
+
+---
+
+# How do we want it implemented(configuration of real physical storage on cloud)
+#while the capacity parameter in the PV YAML file defines the total storage capacity
+#  of the volume, the resources.requests.storage parameter in the PVC YAML file specifies
+#  the amount of storage that the PVC wants to claim from the PV.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cloud-ssd
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+  encrypted: "true"
+
+
+# Binding its a process when we bind a PersistentVolumeClaim and PersistentVolume.
+# Its mine a PersistentVolumeClaim fine PersistentVolume by: storageClassName, accessModes and capacity????
+

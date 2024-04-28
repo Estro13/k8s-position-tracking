@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/test-image" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/configure-to-aws" vcs="Git" />
   </component>
 </project>

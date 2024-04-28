@@ -1,0 +1,11 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: fleetman
+  region: eu-west-2
+
+nodeGroups:
+  - name: fleetman-ng
+    desiredCapacity: 3
+    volumeSize: 10

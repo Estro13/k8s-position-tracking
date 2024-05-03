@@ -3,9 +3,13 @@ kind: ClusterConfig
 
 metadata:
   name: fleetman
-  region: eu-west-2
+  region: us-east-2
 
 nodeGroups:
-  - name: fleetman-ng
+  - name: ng-fleetman
+    instanceType: t2.large
     desiredCapacity: 3
+    maxSize: 4
+    minSize: 3
     volumeSize: 10
+    volumeType: gp2

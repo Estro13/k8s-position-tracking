@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bad
+  # template for the pods
+  template:
+    metadata:
+      labels:
+        app: bad
+    spec:
+      containers:
+        - name: bad
+          #          local env image: richardchesterwood/k8s-fleetman-queue:release2-arm64
+          image: ubuntu:18.04
+          command: ["10 print('it is 1982')\ni20 go to 10"]
+          
+

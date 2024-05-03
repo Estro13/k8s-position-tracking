@@ -35116,12 +35116,13 @@ metadata:
     app.kubernetes.io/version: "8.2.1"
     app.kubernetes.io/managed-by: Helm
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - name: service
       port: 80
       protocol: TCP
       targetPort: 3000
+      nodePort: 31004
 
   selector:
     app.kubernetes.io/name: grafana
@@ -35200,10 +35201,11 @@ spec:
       port: 9093
       targetPort: 9093
       protocol: TCP
+      nodePort: 31005
   selector:
     app: alertmanager
     alertmanager: monitoring-kube-prometheus-alertmanager
-  type: "ClusterIP"
+  type: NodePort
 ---
 # Source: kube-prometheus-stack/templates/exporters/core-dns/service.yaml
 apiVersion: v1
@@ -35308,10 +35310,11 @@ spec:
     - name: web
       port: 9090
       targetPort: 9090
+      nodePort: 31003
   selector:
     app.kubernetes.io/name: prometheus
     prometheus: monitoring-kube-prometheus-prometheus
-  type: "ClusterIP"
+  type: NodePort
 ---
 # Source: kube-prometheus-stack/charts/prometheus-node-exporter/templates/daemonset.yaml
 apiVersion: apps/v1

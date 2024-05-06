@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +8,6 @@ spec:
   selector:
     matchLabels:
       app: queue
-# template for the pods
   template:
     metadata:
       labels:
@@ -15,12 +15,15 @@ spec:
     spec:
       containers:
         - name: queue
-#          local env image: richardchesterwood/k8s-fleetman-queue:release2-arm64
           image: richardchesterwood/k8s-fleetman-queue:release2
-
-
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 150m
+              memory: 300Mi
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,11 +31,10 @@ metadata:
   labels:
     app: position-simulator
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: position-simulator
-  # template for the pods
   template:
     metadata:
       labels:
@@ -40,15 +42,15 @@ spec:
     spec:
       containers:
         - name: position-simulator
-#          local env image: richardchesterwood/k8s-fleetman-position-simulator:release2-arm64
           image: richardchesterwood/k8s-fleetman-position-simulator:release2
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: production-microservice
-
-
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,11 +58,10 @@ metadata:
   labels:
     app: position-tracker
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: position-tracker
-  # template for the pods
   template:
     metadata:
       labels:
@@ -68,15 +69,15 @@ spec:
     spec:
       containers:
         - name: position-tracker
-#          local image: richardchesterwood/k8s-fleetman-position-tracker:release3-arm64
           image: richardchesterwood/k8s-fleetman-position-tracker:release3
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: production-microservice
-
-
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 350Mi
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -84,11 +85,10 @@ metadata:
   labels:
     app: api-gateway
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
-  # template for the pods
   template:
     metadata:
       labels:
@@ -96,15 +96,15 @@ spec:
     spec:
       containers:
         - name: api-gateway
-#          local env image: richardchesterwood/k8s-fleetman-api-gateway:release2-arm64
           image: richardchesterwood/k8s-fleetman-api-gateway:release2
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: production-microservice
-
-
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,11 +112,10 @@ metadata:
   labels:
     app: webapp
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: webapp
-  # template for the pods
   template:
     metadata:
       labels:
@@ -124,11 +123,11 @@ spec:
     spec:
       containers:
         - name: webapp
-#          local env image: richardchesterwood/k8s-fleetman-webapp-angular:release2-arm64
           image: richardchesterwood/k8s-fleetman-webapp-angular:release2
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: production-microservice
-
-
-
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi

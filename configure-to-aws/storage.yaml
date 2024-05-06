@@ -8,7 +8,6 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-#  on this name we reference in container
   name: mongo-pvc
 spec:
 #  this key:value MUST math with PersistentVolume

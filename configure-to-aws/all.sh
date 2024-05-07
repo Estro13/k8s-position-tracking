@@ -40,13 +40,17 @@ echo "-------------Create new secret for alert manager in prometheus done-------
 
 
 #Then check logs for updating alertmanager file
-echo "-------------Check logs form config-reloader"
+echo "-------------Check logs form config-reloader-------------"
 kubectl logs alertmanager-monitoring-kube-prometheus-alertmanager-0 -n monitoring -c config-reloader
-echo "-------------Check logs form config-reloader done"
+echo "-------------Check logs form config-reloader done-------------"
 
-echo "-------------Check logs form config-alertmanager"
+echo "-------------Check logs form config-alertmanager-------------"
 kubectl logs alertmanager-monitoring-kube-prometheus-alertmanager-0 -n monitoring -c alertmanager
-echo "-------------Check logs form config-alertmanager done"
+echo "-------------Check logs form config-alertmanager done-------------"
+
+echo "-------------Create ingress-------------"
+kubectl apply -f /Users/yura/Desktop/test_git/k8s-position-tracking/configure-to-aws/ingress
+echo "-------------Create ingress done-------------"
 
 
 

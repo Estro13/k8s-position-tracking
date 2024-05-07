@@ -51,13 +51,12 @@ kind: Service
 metadata:
   name: fleetman-webapp
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: webapp
   ports:
     - name: http
       port: 80
-      nodePort: 31001
 
 # kubectl port-forward svc/fleetman-webapp 30011:80
 

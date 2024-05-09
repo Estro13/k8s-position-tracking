@@ -1,0 +1,6 @@
+grafana:
+  adminPassword: password1313
+  service:
+    portName: http-web
+    type: NodePort
+    nodePort: 31111

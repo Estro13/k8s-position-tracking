@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: arm64v8/mongo:3.6.22
+          resources:
+            limits:
+              cpu: 300m
+              memory: 300Mi
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+#          pointer to the configur of how we want the mount to be implemented
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-mongodb
+spec:
+  selector:
+    app: mongodb
+
+  ports:
+    - name: tcp
+      port: 27017

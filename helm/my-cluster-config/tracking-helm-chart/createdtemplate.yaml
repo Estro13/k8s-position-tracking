@@ -1,0 +1,302 @@
+---
+# Source: tracking-helm-chart/templates/config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-v1
+  namespace: default
+data:
+  DATABASE_URL: "database.url"
+  DATABASE_PASSWORD: "password123"
+  SPRING_PROFILES_ACTIVE: "production-microservice"
+  TEST_ENV_LIKE_A_FILE_WITH_KEY_AND_VALUES: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+---
+# Source: tracking-helm-chart/templates/storage.yaml
+# How do we want it implemented(configuration of real physical storage on cloud)
+#while the capacity parameter in the PV YAML file defines the total storage capacity
+#  of the volume, the resources.requests.storage parameter in the PVC YAML file specifies
+#  the amount of storage that the PVC wants to claim from the PV.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-storage
+spec:
+  storageClassName: mylocalstorage
+  capacity:
+    storage: 5Gi
+#
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/some-new/directory/structure/"
+    type: DirectoryOrCreate
+
+# Binding its a process when we bind a PersistentVolumeClaim and PersistentVolume.
+# Its mine a PersistentVolumeClaim fine PersistentVolume by: storageClassName, accessModes and capacity????
+---
+# Source: tracking-helm-chart/templates/storage.yaml
+# What do we want?
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+#  on this name we reference in container
+  name: mongo-pvc
+spec:
+#  this key:value MUST math with PersistentVolume
+  storageClassName: mylocalstorage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+#      This value should be less than or equal to the capacity of the PV it is bound to.
+---
+# Source: tracking-helm-chart/templates/mongo-stack.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-mongodb
+spec:
+  selector:
+    app: mongodb
+
+  ports:
+    - name: tcp
+      port: 27017
+---
+# Source: tracking-helm-chart/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-queue
+spec:
+  type: NodePort
+  selector:
+    app: queue
+
+  ports:
+    - name: http
+      port: 8161
+      nodePort: 30010
+
+    - name: endpoint
+      port: 61616
+
+# kubectl port-forward svc/fleetman-queue 30010:8161
+---
+# Source: tracking-helm-chart/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-position-tracker
+spec:
+  type: ClusterIP
+  selector:
+    app: position-tracker
+
+  ports:
+    - name: http
+      port: 8080
+---
+# Source: tracking-helm-chart/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-api-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app: api-gateway
+
+  ports:
+    - name: http
+      port: 8080
+---
+# Source: tracking-helm-chart/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-webapp
+spec:
+  type: NodePort
+  selector:
+    app: webapp
+  ports:
+    - name: http
+      port: 80
+      nodePort: 30011
+# kubectl port-forward svc/fleetman-webapp 30011:80
+---
+# Source: tracking-helm-chart/templates/mongo-stack.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: arm64v8/mongo:3.6.22
+          resources:
+            limits:
+              cpu: 300m
+              memory: 300Mi
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+#          pointer to the configur of how we want the mount to be implemented
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+---
+# Source: tracking-helm-chart/templates/workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: queue
+          image: richardchesterwood/k8s-fleetman-queue:release2-arm64
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+---
+# Source: tracking-helm-chart/templates/workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-simulator
+  labels:
+    app: position-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: position-simulator
+  template:
+    metadata:
+      labels:
+        app: position-simulator
+    spec:
+      containers:
+        - name: position-simulator
+          image: richardchesterwood/k8s-fleetman-position-simulator:release2-arm64
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+---
+# Source: tracking-helm-chart/templates/workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: position-tracker
+  labels:
+    app: position-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: position-tracker
+  template:
+    metadata:
+      labels:
+        app: position-tracker
+    spec:
+      containers:
+        - name: position-tracker
+          image: richardchesterwood/k8s-fleetman-position-tracker:release3-arm64
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 350Mi
+---
+# Source: tracking-helm-chart/templates/workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: richardchesterwood/k8s-fleetman-api-gateway:release2-arm64
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+---
+# Source: tracking-helm-chart/templates/workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:        
+        - name: webapp
+          image: richardchesterwood/k8s-fleetman-webapp-angular:release2-arm64
+          envFrom:
+            - configMapRef:
+                name: cm-v1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi

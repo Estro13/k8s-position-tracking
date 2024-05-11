@@ -1,0 +1,13 @@
+
+
+webapp:
+  replicas: 1
+  nodePort: 31113
+
+dockerRepoName: richardchesterwood
+
+
+
+environment: dev
+
+development: false

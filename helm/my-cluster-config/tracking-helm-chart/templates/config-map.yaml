@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-v1
+  namespace: default
+data:
+  DATABASE_URL: "database.url"
+  DATABASE_PASSWORD: "password123"
+  SPRING_PROFILES_ACTIVE: "production-microservice"
+  TEST_ENV_LIKE_A_FILE_WITH_KEY_AND_VALUES: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
